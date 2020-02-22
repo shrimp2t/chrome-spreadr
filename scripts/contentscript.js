@@ -91,7 +91,7 @@ function checkList( status ) {
 function doImport(){
 	var $rows =  jQuery( '#searchresults #itemlist .row' );
 	if ( ! $rows.length ) {
-		console.log( 'No results' );
+		//console.log( 'No results' );
 		checkList( 'not_found' );
 		jQuery( document ).trigger( 'pm_row_done' );
 		return;
@@ -100,7 +100,7 @@ function doImport(){
 	var warningP = $row.find( 'p.text-danger' );
 	if ( warningP.length && ! warningP.hasClass( 'hide' ) ) {
 		checkList( 'already_imported' );
-		console.log( 'Already imported' );
+		//console.log( 'Already imported' );
 		jQuery( document ).trigger( 'pm_row_done' );
 		return;
 	}
@@ -134,7 +134,7 @@ jQuery(document).ready(function($) {
 
 
 	function action(){
-		console.log( 'indexing', pm_indexing );
+		//console.log( 'indexing', pm_indexing );
 		var sku = pm_list[ pm_indexing ];
 		pm_working_sku = sku.trim();
 		var $inputKeywords = $( 'input#keywords' );
