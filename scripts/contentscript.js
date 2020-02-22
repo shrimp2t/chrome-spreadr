@@ -182,7 +182,11 @@ jQuery(document).ready(function($) {
 		e.preventDefault();
 
 		if ( ! $( this ).is( ':disabled' ) ) {
-			var string_sku = $( '#pm-skus' ).val();
+			var string_sku = $( '#pm-skus' ).val() || '';
+			string_sku = string_sku.trim( string_sku );
+			if ( ! string_sku ) {
+				return;
+			}
 			pm_list = string_sku.split(/\r?\n/);
 			pm_countList = pm_list.length;
 			console.log( 'countList', pm_countList );
