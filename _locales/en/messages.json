@@ -1,0 +1,10 @@
+{
+	"appName": {
+		"message": "Spreadr Auto",
+		"description": "Chrome extension for Spreadr.co"
+	},
+	"appDescription": {
+		"message": "Chrome extension for Spreadr.co",
+		"description": "The description of the application"
+	}
+}
