@@ -71,7 +71,7 @@ chrome.extension.onMessage.addListener(async function(
 
 // -----------------------------
 
-
+let pm_delay = 2000; // 2 seconds
 let pm_saveData = [];
 let pm_fileName = "";
 let pm_working_sku = '';
@@ -114,29 +114,19 @@ function doneImport(){
 
 
 jQuery(document).ready(function($) {
-    let $button = $("<button>Auto Import</button>");
-	let $html = '<div id="pm-input-wrapper" style="position: fixed; top: 30px; bottom: 80px; right: 20px; z-index: 9999; width: 250px; padding: 10px; display: block; background: #fff; border: 1px solid #ccc;">\
-		<textarea id="pm-skus" style="width: 100%; padding: 10px; border: 1px solid #ccc;" rows="10"></textarea>\
-		<button style="background: #2196f3; padding: 5px 10px; color: #fff;" type="button" id="pm-run">Run</button>\
+    let $button = $("<button id='pm-toggle-input' style='font-size: 12px; line-height: 1; position: fixed; z-index: 999999; right: 20px; bottom: 20px; border: 1px solid rgb(30, 136, 229); border-radius: 5px; padding: 5px 10px; background: #00acc1; color: rgb(255, 255, 255);'>Auto Import</button>");
+	let $html = '<div id="pm-input-wrapper" style="display: none; position: fixed; top: 30px; bottom: 50px; right: 20px; z-index: 9999; width: 250px; padding: 10px; background: #fff; border: 1px solid #ccc;">\
+		<textarea id="pm-skus" placeholder="Enter SKUs here, each item per line." style="font-size: 12px; width: 100%; height: calc( 100% - 35px ); margin-bottom: 5px; display: block; padding: 10px; border: 1px solid #ccc;" rows="10"></textarea>\
+		<button style="background: #2196f3; font-size: 12px; padding: 5px 10px; line-height: 1; color: #fff; border: 0px none; border-radius: 3px;" type="button" id="pm-run">Run</button>\
+		<button style="display: none; background: #ef5350; font-size: 12px; padding: 5px 10px; line-height: 1; color: #fff; border: 0px none; border-radius: 3px;" type="button" id="pm-download">Download Report</button>\
 		</div>';
-    $button.css({
-        position: "fixed",
-        zIndex: 999999,
-        right: "20px",
-        bottom: "20px",
-        border: "1px solid #1e88e5",
-        borderRadius: "5px",
-        padding: "5px 10px",
-        background: "#2196f3",
-        color: "#fff"
-	});
+    
 	$( 'body' ).append( $button );
 	$( 'body' ).append( $html );
 	// $button.on( 'click', function( e ) {
 	// 	e.preventDefault();
 	// } );
 
-	
 
 	function action(){
 		console.log( 'indexing', pm_indexing );
@@ -151,7 +141,7 @@ jQuery(document).ready(function($) {
 
 	$( document ).on( 'pm_seach_done', async function(){
 		console.log( 'Search Done' );
-		await sleep(600);
+		await sleep(1000);
 		doImport();
 	} );
 
@@ -165,19 +155,22 @@ jQuery(document).ready(function($) {
 		if ( pm_indexing >= pm_countList ) {
 			jQuery( document ).trigger( 'pm_all_done' );
 		} else {
-			await sleep(600);
+			await sleep(pm_delay);
 			action();
 		}
 	} );
 
 	$( document ).on( 'pm_all_done', function(){
 		console.log( 'All done', pm_saveData );
-		
+		$( '#pm-download' ).css( 'display', 'inline-block' );
+		$( '#pm-run' ).css( 'display', 'inline-block' ).text( 'Run' ).removeAttr( 'disabled' );
 	} );
 
 	$( document ).on( 'pm_start_check', function(){
 		pm_saveData = [];
 		pm_indexing = 0;
+		$( '#pm-download' ).css( 'display', 'none' );
+		$( '#pm-run' ).css( 'display', 'inline-block' ).attr( 'disabled', 'disabled' ).text( 'Running...' );
 		if ( pm_indexing >= pm_countList ) {
 			jQuery( document ).trigger( 'pm_all_done' );
 		} else {
@@ -187,15 +180,25 @@ jQuery(document).ready(function($) {
 
 	$( '#pm-run' ).on( 'click', function( e ) {
 		e.preventDefault();
-		
-		var string_sku = $( '#pm-skus' ).val();
-		pm_list = string_sku.split(/\r?\n/);
-		pm_countList = pm_list.length;
-		console.log( 'countList', pm_countList );
-		console.log( 'list', pm_list );
-		jQuery( document ).trigger( 'pm_start_check' );
 
+		if ( ! $( this ).is( ':disabled' ) ) {
+			var string_sku = $( '#pm-skus' ).val();
+			pm_list = string_sku.split(/\r?\n/);
+			pm_countList = pm_list.length;
+			console.log( 'countList', pm_countList );
+			console.log( 'list', pm_list );
+			jQuery( document ).trigger( 'pm_start_check' );
+		}
+		
+		
 	} );
 
+	$( document ).on( 'click', '#pm-download', function(e){
+		exportCSVFile( pm_saveData, 'spreadr-report-' + (new Date().getTime()) );
+	} );
+
+	$( document ).on( 'click', '#pm-toggle-input', function(e){
+		$( '#pm-input-wrapper' ).toggle();
+	} );
 
 });
