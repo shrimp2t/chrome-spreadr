@@ -113,9 +113,14 @@ function doneImport(){
 }
 
 
-jQuery(document).ready(function($) {
-    let $button = $("<button id='pm-toggle-input' style='font-size: 12px; line-height: 1; position: fixed; z-index: 999999; right: 20px; bottom: 20px; border: 1px solid rgb(30, 136, 229); border-radius: 5px; padding: 5px 10px; background: #00acc1; color: rgb(255, 255, 255);'>Auto Import</button>");
-	let $html = '<div id="pm-input-wrapper" style="display: none; position: fixed; top: 30px; bottom: 50px; right: 20px; z-index: 9999; width: 250px; padding: 10px; background: #fff; border: 1px solid #ccc;">\
+jQuery(document).ready(function($) {	
+
+	if ( window.location != 'https://spreadr.co/search' ) {
+		return ;
+	}
+
+    let $button = $("<button id='pm-toggle-input' style='font-size: 12px; font-weight: bold; line-height: 1; position: fixed; z-index: 999999; right: 20px; bottom: 20px; border: 1px solid rgb(30, 136, 229); border-radius: 5px; padding: 5px 10px; background: #00acc1; color: rgb(255, 255, 255);'>Auto Import</button>");
+	let $html = '<div id="pm-input-wrapper" style="background: #eceff1; border-radius: 3px; display: none; position: fixed; top: 30px; bottom: 50px; right: 20px; z-index: 9999; width: 250px; padding: 10px; border: 1px solid #ccc;">\
 		<textarea id="pm-skus" placeholder="Enter SKUs here, each item per line." style="font-size: 12px; width: 100%; height: calc( 100% - 35px ); margin-bottom: 5px; display: block; padding: 10px; border: 1px solid #ccc;" rows="10"></textarea>\
 		<button style="background: #2196f3; font-size: 12px; padding: 5px 10px; line-height: 1; color: #fff; border: 0px none; border-radius: 3px;" type="button" id="pm-run">Run</button>\
 		<button style="display: none; background: #ef5350; font-size: 12px; padding: 5px 10px; line-height: 1; color: #fff; border: 0px none; border-radius: 3px;" type="button" id="pm-download">Download Report</button>\
@@ -140,13 +145,13 @@ jQuery(document).ready(function($) {
 
 
 	$( document ).on( 'pm_seach_done', async function(){
-		console.log( 'Search Done' );
+		// console.log( 'Search Done' );
 		await sleep(1000);
 		doImport();
 	} );
 
 	$( document ).on( 'pm_import_done', function(){
-		console.log( 'Import Done' );
+		// console.log( 'Import Done' );
 		doneImport();
 	} );
 
@@ -156,12 +161,13 @@ jQuery(document).ready(function($) {
 			jQuery( document ).trigger( 'pm_all_done' );
 		} else {
 			await sleep(pm_delay);
+			$( '#pm-run' ).text( `Running...(${pm_indexing+1}/${pm_countList})` );
 			action();
 		}
 	} );
 
 	$( document ).on( 'pm_all_done', function(){
-		console.log( 'All done', pm_saveData );
+		// console.log( 'All done', pm_saveData );
 		$( '#pm-download' ).css( 'display', 'inline-block' );
 		$( '#pm-run' ).css( 'display', 'inline-block' ).text( 'Run' ).removeAttr( 'disabled' );
 	} );
@@ -170,7 +176,7 @@ jQuery(document).ready(function($) {
 		pm_saveData = [];
 		pm_indexing = 0;
 		$( '#pm-download' ).css( 'display', 'none' );
-		$( '#pm-run' ).css( 'display', 'inline-block' ).attr( 'disabled', 'disabled' ).text( 'Running...' );
+		$( '#pm-run' ).css( 'display', 'inline-block' ).attr( 'disabled', 'disabled' ).text( `Running...(1/${pm_countList})` );
 		if ( pm_indexing >= pm_countList ) {
 			jQuery( document ).trigger( 'pm_all_done' );
 		} else {
